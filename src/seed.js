@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import FeedbackModel from "./db.js";
+import FeedbackModel from "./src/db.js";
 import axios from "axios";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {

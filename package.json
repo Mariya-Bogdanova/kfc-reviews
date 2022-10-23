@@ -5,8 +5,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js --ignore session",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js --ignore session",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

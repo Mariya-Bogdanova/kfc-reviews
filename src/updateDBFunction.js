@@ -1,16 +1,7 @@
-import express from "express";
-import axios from "axios";
-import mongoose from "mongoose";
 import FeedbackModel from "./db.js";
+import axios from "axios";
 
-mongoose.connect("mongodb://localhost:27017/feedback", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const app = express();
-
-async function getNewFeedbacks() {
+export async function updateDB() {
   const { id: idLast, date: dateLast } = await FeedbackModel.findOne().sort({
     date: -1,
   });
@@ -38,13 +29,5 @@ async function getNewFeedbacks() {
     );
     if (reqIncudesLast) break;
   }
-  console.log(111, dateLast, newFeedbacks);
+  await FeedbackModel.insertMany(newFeedbacks);
 }
-getNewFeedbacks();
-
-// app.get("/", async(req, res) => {
-// const info = await parse();
-//   return res.json(info);;
-// });
-
-app.listen(process.env.PORT ?? 3000);
