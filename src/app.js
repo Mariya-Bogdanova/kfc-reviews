@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import FeedbackModel from "./db.js";
-import { updateDB } from "./updateDBFunction.js";
+import { updateDB } from "./utils.js";
+import { DATESTART, DATEEND } from "./consts.js";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {
   useNewUrlParser: true,
@@ -17,8 +18,8 @@ app.get("/", async (req, res) => {
     offset = 0,
     date,
     rating,
-    dateStart = "1970-01-01",
-    dateEnd = "2050-01-01",
+    dateStart = DATESTART,
+    dateEnd = DATEEND,
     filtrByRating,
   } = req.query;
 

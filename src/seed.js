@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
-import FeedbackModel from "./db.js";
 import axios from "axios";
+import FeedbackModel from "./db.js";
+import { changeParams } from "./utils.js";
+import { path } from "./utils.js";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {
   useNewUrlParser: true,
@@ -10,30 +12,17 @@ mongoose.connect("mongodb://localhost:27017/feedback", {
 async function getAllFeedbacks() {
   const {
     data: { total },
-  } = await axios(
-    "https://api.delivery-club.ru/api1.2/reviews?chainId=48274&limit=1&offset=0"
-  );
+  } = await axios(path(1, 0));
   const count = Math.ceil(total / 1000);
 
   for (let i = 0; i < count; i++) {
     const {
       data: { reviews },
-    } = await axios(
-      `https://api.delivery-club.ru/api1.2/reviews?chainId=48274&limit=1000&offset=${i}000`
-    );
+    } = await axios(path(1000, `${i}000`));
 
-    const feedbacks = reviews.map(
-      ({ answers, author, body, icon, rated, orderHash }) => ({
-        answer: answers[0]?.answer?.trim() || "",
-        author: author || "incognito",
-        text: body.trim() || "",
-        reting: icon.charCodeAt(1).toString(16) === "de0a" ? 5 : 1,
-        date: rated,
-        id: orderHash,
-      })
-    );
+    const feedbacks = changeParams(reviews);
     await FeedbackModel.insertMany(feedbacks);
   }
 }
 
-// getAllFeedbacks();
+getAllFeedbacks();
