@@ -11,19 +11,22 @@ mongoose.connect("mongodb://localhost:27017/feedback", {
 const app = express();
 
 async function getNewFeedbacks() {
-  const { id, date } = await FeedbackModel.findOne().sort({ date: -1 });
-  let lastFeedBack;
+  const { id: idLast, date: dateLast } = await FeedbackModel.findOne().sort({
+    date: -1,
+  });
+  let reqIncudesLast = false;
   const newFeedbacks = [];
+
   for (let i = 0; ; i++) {
     const {
       data: { reviews },
     } = await axios(
       `https://api.delivery-club.ru/api1.2/reviews?chainId=48274&limit=10&offset=${i}0`
     );
-    lastFeedBack = reviews.find(({ orderHash }) => orderHash === id);
+    reqIncudesLast = reviews.some(({ orderHash }) => orderHash === idLast);
     newFeedbacks.push(
       ...reviews
-        .filter(({ rated }) => new Date(rated) > date)
+        .filter(({ rated }) => new Date(rated) > dateLast)
         .map(({ answers, author, body, icon, rated, orderHash }) => ({
           answer: answers[0]?.answer?.trim() || "",
           author: author || "incognito",
@@ -33,8 +36,9 @@ async function getNewFeedbacks() {
           id: orderHash,
         }))
     );
-    if (lastFeedBack) break;
+    if (reqIncudesLast) break;
   }
+  console.log(111, dateLast, newFeedbacks);
 }
 getNewFeedbacks();
 
