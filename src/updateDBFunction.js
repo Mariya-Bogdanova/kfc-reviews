@@ -22,7 +22,7 @@ export async function updateDB() {
           answer: answers[0]?.answer?.trim() || "",
           author: author || "incognito",
           text: body.trim() || "",
-          icon,
+          reting: icon.charCodeAt(1).toString(16) === "de0a" ? 5 : 1,
           date: new Date(rated),
           id: orderHash,
         }))

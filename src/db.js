@@ -5,7 +5,7 @@ const FeedbackSchema = new mongoose.Schema({
   answer: String,
   author: String,
   text: String,
-  icon: String,
+  reting: Number,
   date: { type: Date, required: true },
   id: { type: String, required: true },
 });

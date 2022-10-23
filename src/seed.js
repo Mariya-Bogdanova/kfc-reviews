@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import FeedbackModel from "./src/db.js";
+import FeedbackModel from "./db.js";
 import axios from "axios";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {
@@ -27,7 +27,7 @@ async function getAllFeedbacks() {
         answer: answers[0]?.answer?.trim() || "",
         author: author || "incognito",
         text: body.trim() || "",
-        icon,
+        reting: icon.charCodeAt(1).toString(16) === "de0a" ? 5 : 1,
         date: rated,
         id: orderHash,
       })
@@ -36,4 +36,4 @@ async function getAllFeedbacks() {
   }
 }
 
-getAllFeedbacks();
+// getAllFeedbacks();

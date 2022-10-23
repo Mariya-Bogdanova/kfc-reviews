@@ -17,8 +17,8 @@ app.get("/", async (req, res) => {
     offset = 0,
     date,
     rating,
-    dateStart,
-    dateEnd,
+    dateStart = "1970-01-01",
+    dateEnd = "2050-01-01",
     filtrByRating,
   } = req.query;
 
@@ -33,12 +33,16 @@ app.get("/", async (req, res) => {
 
   const data = await FeedbackModel.find(
     {
-      // $and: [
-      // { icon: filtrByRating },{
-      date: { $gte: new Date(dateStart), $lte: new Date(dateEnd) },
-      //},],
+      $and: [
+        {
+          reting: filtrByRating || { $in: [1, 5] },
+        },
+        {
+          date: { $gte: new Date(dateStart), $lte: new Date(dateEnd) },
+        },
+      ],
     },
-    { _id: 0, id: 0 }
+    { _id: 0, id: 0, __v: 0 }
   )
     .sort(reqSort)
     .skip(offset)
