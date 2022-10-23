@@ -1,8 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import FeedbackModel from "./db.js";
 import { updateDB } from "./utils.js";
-import { DATESTART, DATEEND } from "./consts.js";
+import { DATESTART, DATEEND, LIMIT, OFFSET } from "./consts.js";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {
   useNewUrlParser: true,
@@ -11,16 +13,81 @@ mongoose.connect("mongodb://localhost:27017/feedback", {
 
 const app = express();
 
-app.get("/", async (req, res) => {
+// Extended: https://swagger.io/specification/#infoObject
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "Feedbacks API",
+      description: "Feedbacks API Information",
+      contact: {
+        name: "Mariya Bogdanova",
+      },
+      servers: ["https://localhost:3000"],
+    },
+  },
+  //['.routes/*js']
+  apis: ["src/app.js"],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Routes
+/**
+ * @swagger
+ * /feedbacks?offset=10&limit=10&date=-1&dateStart="2022-09-01"&dateEnd="2022-09-02":
+ *  get:
+ *    description: Use to request feedbacks
+ *    responses:
+ *      '200':
+ *        description: A successful response
+ *    parameters:
+ *      -  in : query
+ *         name: offset
+ *         type: integer
+ *         description: The number of items to skip before starting to collect the result set.
+ *         example: 10
+ *      -  in : query
+ *         name: limit
+ *         type: integer
+ *         description: Number of elements in the response.
+ *         example: 10
+ *      -  in : query
+ *         name: date
+ *         type: integer
+ *         description: Sort by date. Not applicable with other active sorting
+ *         example: 1/-1
+ *      -  in : query
+ *         name: rating
+ *         type: integer
+ *         description: Sort by rating. Not applicable with other active sorting
+ *         example: 1/-1
+ *      -  in : query
+ *         name: dateStart
+ *         type: string
+ *         description: Filter by dateStart. Not applicable when filtering by rating
+ *         example: "2022-09-01"
+ *      -  in : query
+ *         name: dateEnd
+ *         type: string
+ *         description: Filter by dateEnd. Not applicable when filtering by rating
+ *         example: "2022-09-02"
+ *      -  in : query
+ *         name: filtrByRating
+ *         type: integer
+ *         description: Filter by rating. Not applicable with other active filtering
+ *         example: 1/5
+ */
+app.get("/feedbacks", async (req, res) => {
   updateDB();
   const {
-    limit = 10,
-    offset = 0,
-    date,
-    rating,
-    dateStart = DATESTART,
-    dateEnd = DATEEND,
-    filtrByRating,
+    limit = LIMIT, // 10
+    offset = OFFSET, // 10
+    date, // 1/-1
+    rating, // 1/-1
+    dateStart = DATESTART, // "2022-09-01"
+    dateEnd = DATEEND, // "2022-09-02"
+    filtrByRating, // 1/5
   } = req.query;
 
   let reqSort;
