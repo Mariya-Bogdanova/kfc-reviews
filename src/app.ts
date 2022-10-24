@@ -1,19 +1,18 @@
 import express from "express";
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions, SortOrder } from "mongoose";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import FeedbackModel from "./db.js";
-import { updateDB } from "./utils.js";
-import { DATESTART, DATEEND, LIMIT, OFFSET } from "./consts.js";
+import FeedbackModel from "./db";
+import { updateDB } from "./utils";
+import { DATESTART, DATEEND, LIMIT, OFFSET } from "./consts";
 
 mongoose.connect("mongodb://localhost:27017/feedback", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+} as ConnectOptions);
 
 const app = express();
 
-// Extended: https://swagger.io/specification/#infoObject
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
@@ -23,9 +22,10 @@ const swaggerOptions = {
         name: "Mariya Bogdanova",
       },
       servers: ["https://localhost:3000"],
+      version:'1.0.0',
     },
   },
-  apis: ["src/app.js"],
+  apis: ["dist/app.js"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -34,7 +34,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // Routes
 /**
  * @swagger
- * /feedbacks?limit=10:
+ * /feedbacks:
  *  get:
  *    description: Use to request feedbacks
  *    responses:
@@ -42,14 +42,15 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *        description: A successful response
  *    parameters:
  *      -  in : query
- *         name: offset
- *         type: integer
- *         description: The number of items to skip before starting to collect the result set.
- *         example: 10
- *      -  in : query
  *         name: limit
  *         type: integer
  *         description: Number of elements in the response.
+ *         example: 10
+ *         default: 10
+ *      -  in : query
+ *         name: offset
+ *         type: integer
+ *         description: The number of items to skip before starting to collect the result set.
  *         example: 10
  *      -  in : query
  *         name: date
@@ -80,13 +81,13 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get("/feedbacks", async (req, res) => {
   updateDB();
   const {
-    limit = LIMIT, // 10
-    offset = OFFSET, // 10
-    date, // 1/-1
-    rating, // 1/-1
-    dateStart = DATESTART, // "2022-09-01"
-    dateEnd = DATEEND, // "2022-09-02"
-    filtrByRating, // 1/5
+    limit = LIMIT,
+    offset = OFFSET,
+    date,
+    rating,
+    dateStart = DATESTART,
+    dateEnd = DATEEND,
+    filtrByRating,
   } = req.query;
 
   let reqSort;
@@ -105,15 +106,15 @@ app.get("/feedbacks", async (req, res) => {
           reting: filtrByRating || { $in: [1, 5] },
         },
         {
-          date: { $gte: new Date(dateStart), $lte: new Date(dateEnd) },
+          date: { $gte: new Date(dateStart as string), $lte: new Date(dateEnd as string ) },
         },
       ],
     },
     { _id: 0, id: 0, __v: 0 }
   )
-    .sort(reqSort)
-    .skip(offset)
-    .limit(limit)
+    .sort(reqSort as any)
+    .skip(offset as number)
+    .limit(limit as number)
     .exec();
 
   res.json(data);
