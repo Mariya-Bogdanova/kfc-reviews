@@ -10,10 +10,20 @@ interface ReceivedFeedbacks {
     orderHash:string, 
     products:any,
 }
+
+interface FeedbackParams {
+  answer: string,
+  author: string, 
+  text: string, 
+  reting: number, 
+  date: Date, 
+  id: string 
+}
+
 export const path = (limit: number, offset: string) =>
   `https://api.delivery-club.ru/api1.2/reviews?chainId=48274&limit=${limit}&offset=${offset}`;
 
-export async function updateDB() {
+export async function updateDB(): Promise<void> {
   const lastFeedback = await FeedbackModel.findOne().sort({
     date: -1,
   });
@@ -41,7 +51,7 @@ export async function updateDB() {
   
 }
 
-export function changeParams(arr:ReceivedFeedbacks[]){
+export function changeParams(arr:ReceivedFeedbacks[]): FeedbackParams[] {
     return arr.map(({ answers, author, body, icon, rated, orderHash }) => ({
       answer: answers[0]?.answer?.trim() || "",
       author: author || "incognito",

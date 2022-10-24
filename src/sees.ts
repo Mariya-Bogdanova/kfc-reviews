@@ -8,7 +8,7 @@ mongoose.connect("mongodb://localhost:27017/feedback", {
   useUnifiedTopology: true,
 } as ConnectOptions);
 
-async function getAllFeedbacks() {
+async function getAllFeedbacks():Promise<void> {
   const {
     data: { total },
   } = await axios(path(1, '0'));
