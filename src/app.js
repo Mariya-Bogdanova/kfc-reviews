@@ -25,7 +25,6 @@ const swaggerOptions = {
       servers: ["https://localhost:3000"],
     },
   },
-  //['.routes/*js']
   apis: ["src/app.js"],
 };
 
@@ -35,7 +34,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // Routes
 /**
  * @swagger
- * /feedbacks?offset=10&limit=10&date=-1&dateStart="2022-09-01"&dateEnd="2022-09-02":
+ * /feedbacks?limit=10:
  *  get:
  *    description: Use to request feedbacks
  *    responses:
